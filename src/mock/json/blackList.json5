@@ -1,0 +1,22 @@
+{
+    "data": {
+        "blackList":[
+            { 
+            	 "email":"xxx@qq.com",
+           		 "ban":false
+            },
+            { 
+            	"email":"xxx@qq.com",
+           		 "ban":true
+            },
+            { 
+            	"email":"xxx@qq.com",
+           		 "ban":false
+            },
+         ]
+    },
+    "status": {
+        "msg": "ok",
+        "code": 200
+    }
+}
