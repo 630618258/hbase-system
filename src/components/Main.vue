@@ -63,7 +63,7 @@
           </el-form>
         </div>
         <div class="table-frame">
-          <Table :families="families" :tableList="tableList"></Table>
+          <Table ref="tableRef" :families="families" :tableList="tableList"></Table>
           <!-- <div class="tb">
             <el-table stripe border :data="tableList">
               <el-table-column label="行数" prop="row"></el-table-column>
@@ -819,6 +819,10 @@ export default {
       if (res.status.code === 200) {
         this.tableList = res.data.cells;
 
+        this.$nextTick(() => {
+          this.$refs.tableRef.handleList()
+        })
+
         // var arrs = [];
         // var familys = [];
         // this.tableList.forEach((val) => {
@@ -869,6 +873,11 @@ export default {
 
       if (res.status.code === 200) {
         this.tableList = res.data.cells;
+
+        
+        this.$nextTick(() => {
+          this.$refs.tableRef.handleList()
+        })
 
         // var arrs = [];
         // var familys = [];

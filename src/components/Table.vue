@@ -1,8 +1,8 @@
 <template>
   <div class="tb">
-    <table class="table table-striped table-bordered">
-      <thead>
-        <tr style="text-align: center">
+    <table class="table table-bordered table-hover ">
+      <thead style="color: grey; background-color: rgb(233,235,235)">
+        <tr style="text-align: center;">
           <th>族名</th>
           <th
             :colspan="item.cols.length"
@@ -19,11 +19,13 @@
           <th>操作</th>
         </tr>
       </thead>
-      <tbody ref="tbodyRef">
+      <tbody style="color: black" ref="tbodyRef">
         <tr v-for="(item, index) in rows" :key="index">
           <td>{{ item[0].row }}</td>
           <td v-for="(col, index) in colArr" :key="index"></td>
-          <td>删除</td>
+          <td>
+            <a style="text-decoration: none;" href="javascript:;" @click="delRow">删除</a>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -60,6 +62,11 @@ export default {
     },
   },
   methods: {
+    delRow(e) {
+      var row = e.target.parentNode.parentNode.children[0].innerHTML
+      console.log(row);
+      this.$parent.delConfirm(row)
+    },
     handleList() {
       var famGroup = [];
 
@@ -146,9 +153,7 @@ export default {
       }
     },
   },
-  created() {
-    this.handleList()
-  }
+
 };
 </script>
 
