@@ -68,7 +68,7 @@ export default {
         email: "",
         code: "",
       },
-      countdown: 6,
+      countdown: 60,
       isDisabled: false,
       btnText: "获取验证码",
     };
@@ -119,7 +119,7 @@ export default {
       } else {
         that.isDisabled = false;
         that.btnText = "获取验证码";
-        that.countdown = 6;
+        that.countdown = 60;
         clearTimeout(id);
       }
     },
