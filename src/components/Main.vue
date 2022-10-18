@@ -31,7 +31,7 @@
                 <span>{{ item2 }}</span>
               </template>
               <el-menu-item
-                @click="getTableList"
+                @click="getFamilies"
                 v-for="(item3, index3) in tableNames"
                 :key="index3"
                 :index="`${index}-${index2}-${index3}`"
@@ -63,7 +63,11 @@
           </el-form>
         </div>
         <div class="table-frame">
-          <Table ref="tableRef" :families="families" :tableList="tableList"></Table>
+          <Table
+            ref="tableRef"
+            :families="families"
+            :tableList="tableList"
+          ></Table>
           <!-- <div class="tb">
             <el-table stripe border :data="tableList">
               <el-table-column label="行数" prop="row"></el-table-column>
@@ -455,11 +459,11 @@
 
 <script>
 import Navbar from "./Navbar.vue";
-import Table from './Table.vue'
+import Table from "./Table.vue";
 export default {
   components: {
     Navbar,
-    Table
+    Table,
   },
   data() {
     return {
@@ -762,7 +766,7 @@ export default {
         if (res.data.status.code === 200) {
           // 拿到表格数据
 
-          that.getList();
+          that.getTableList();
 
           that.$message.success("插入成功");
           that.dialogInsertVisible = false;
@@ -791,7 +795,7 @@ export default {
         sourceName: this.sourceNamec,
         namespace: this.namespacec,
         tableName: this.tableNamecc,
-        rowKey: row.row,
+        rowKey: row,
       }).then(function (res) {
         if (res.data.status.code === 200) {
           that.getList();
@@ -813,49 +817,19 @@ export default {
         }
       );
 
-      // 拿到族名
-      this.getFamilies();
-
       if (res.status.code === 200) {
+        // 拿到并存储table数据
         this.tableList = res.data.cells;
 
-        this.$nextTick(() => {
-          this.$refs.tableRef.handleList()
-        })
-
-        // var arrs = [];
-        // var familys = [];
-        // this.tableList.forEach((val) => {
-        //   for (var k in val) {
-        //     if (k == "family") {
-        //       arrs.push(val[k]);
-        //     }
-        //   }
+        // this.$nextTick(() => {
+        //   this.$refs.tableRef.handleList();
         // });
-
-        // arrs.forEach((val, index) => {
-        //   if (familys.indexOf(arrs[index]) == -1) {
-        //     familys.push(arrs[index]);
-        //   }
-        // });
-
-        // this.familyArr = familys;
-
-        // for (var i = 0; i < this.familyArr.length; i++) {
-        //   var obj = {};
-        //   (obj.value = this.familyArr[i]), (obj.label = this.familyArr[i]);
-        //   this.familyOptions.push(obj);
-        // }
       } else {
         this.$message.error("查询失败");
       }
     },
     // 点击三级列表时拿到table数据
-    async getTableList(e) {
-      var arr = e.index.split("-");
-      this.arr = arr;
-
-      this.currentTableName = this.tableNames[arr[2]];
+    async getTableList() {
 
       const { data: res } = await this.gets(
         "/api/manage/HbaseTable/auth/getTable",
@@ -868,48 +842,22 @@ export default {
         }
       );
 
-      // 拿到族名
-      this.getFamilies();
-
       if (res.status.code === 200) {
+        // 拿到并存储table数据
         this.tableList = res.data.cells;
-
-        
-        this.$nextTick(() => {
-          this.$refs.tableRef.handleList()
-        })
-
-        // var arrs = [];
-        // var familys = [];
-        // this.tableList.forEach((val) => {
-        //   for (var k in val) {
-        //     if (k == "family") {
-        //       arrs.push(val[k]);
-        //     }
-        //   }
-        // });
-
-        // arrs.forEach((val, index) => {
-        //   if (familys.indexOf(arrs[index]) == -1) {
-        //     familys.push(arrs[index]);
-        //   }
-        // });
-
-        // this.familyArr = familys;
-
-        // for (var i = 0; i < this.familyArr.length; i++) {
-        //   var obj = {};
-        //   (obj.value = this.familyArr[i]), (obj.label = this.familyArr[i]);
-        //   this.familyOptions.push(obj);
-        // }
       } else {
         this.$message.error("查询失败");
       }
     },
 
-    // 存储族名
-    getFamilies() {
+    // 存储族名(先拿族名，后拿表格数据)
+    getFamilies(e) {
       var that = this;
+
+      var arr = e.index.split("-");
+      this.arr = arr;
+
+      this.currentTableName = this.tableNames[arr[2]];
 
       this.posts("/api/manage/HbaseTable/auth/getFamilies", {
         sourceName: this.currentSourceName,
@@ -927,6 +875,8 @@ export default {
             obj.value = val;
             that.familyOptions.push(obj);
           });
+
+          that.getTableList();
         }
       });
     },

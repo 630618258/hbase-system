@@ -1,11 +1,12 @@
 <template>
   <div class="tb">
-    <table class="table table-bordered table-hover ">
-      <thead style="color: grey; background-color: rgb(233,235,235)">
-        <tr style="text-align: center;">
+    <table v-if="tableVisible" class="table table-striped table-bordered ">
+      <!-- background-color: rgb(242,241,246) -->
+      <thead style="color: grey;">
+        <tr style="text-align: center">
           <th>族名</th>
           <th
-            :colspan="item.cols.length"
+            :colspan="item.cols.length == 0 ? 1 : item.cols.length"
             v-for="item in familyGroup"
             :key="item.family"
           >
@@ -24,11 +25,16 @@
           <td>{{ item[0].row }}</td>
           <td v-for="(col, index) in colArr" :key="index"></td>
           <td>
-            <a style="text-decoration: none;" href="javascript:;" @click="delRow">删除</a>
+            <a style="text-decoration: none" href="javascript:;" @click="delRow"
+              >删除</a
+            >
           </td>
         </tr>
       </tbody>
     </table>
+    <div v-if="!tableVisible" class="empty">
+      <span>表格中暂无数据</span>
+    </div>
   </div>
 </template>
 
@@ -38,6 +44,7 @@ export default {
     return {
       familyGroup: [],
       rows: [],
+      tableVisible: false
     };
   },
   props: {
@@ -50,51 +57,81 @@ export default {
       type: Array,
     },
   },
+  watch: {
+    tableList: {
+      handler(newVal, oldVal) {
+        if (newVal.length == 0) {
+          this.tableVisible = false
+        } else {
+          this.handleList();
+          this.tableVisible = true
+        }
+        // if (newVal.length == 0) {
+        //   this.tableVisible = true
+        // }
+      },
+      immediate: true
+    },
+  },
   computed: {
     colArr() {
       var newArr = [];
       this.familyGroup.forEach((fam) => {
-        fam.cols.forEach((col) => {
-          newArr.push(col);
-        });
+        if (fam.cols.length == 0) {
+          newArr.push('暂无列')
+        } else {
+          fam.cols.forEach(col => {
+            newArr.push(col)
+          })
+        }
       });
       return newArr;
     },
   },
   methods: {
     delRow(e) {
-      var row = e.target.parentNode.parentNode.children[0].innerHTML
-      console.log(row);
-      this.$parent.delConfirm(row)
+      var row = e.target.parentNode.parentNode.children[0].innerHTML;
+      this.$parent.delConfirm(row);
     },
     handleList() {
+      if (this.tableList.length == 0) return;
+
       var famGroup = [];
 
+      // console.log(this.families);
+      // console.log(this.tableList);
+
       this.families.forEach((family) => {
-        var arr = this.tableList.filter((item) => {
-          return item.family == family;
+        var arr = this.tableList.filter((cell) => {
+          return cell.family == family;
         });
         famGroup.push(arr);
       });
 
+      // console.log(this.families);
+
       var familyGroup = [];
       for (var i = 0; i < famGroup.length; i++) {
         var obj = {};
-        obj.family = famGroup[i][0].family;
+        obj.family = this.families[i];
         var newArr = [];
-        for (var j = 0; j < famGroup[i].length; j++) {
-          if (newArr.indexOf(famGroup[i][j].qualifier) == -1) {
-            newArr.push(famGroup[i][j].qualifier);
+        // for (var j = 0; j < famGroup[i].length; j++) {
+        //   if (newArr.indexOf(famGroup[i][j].qualifier) == -1) {
+        //     newArr.push(famGroup[i][j].qualifier);
+        //   }
+        // }
+        if (famGroup[i].length == 0) {
+        } else {
+          for (var j = 0; j < famGroup[i].length; j++) {
+            if (newArr.indexOf(famGroup[i][j].qualifier) == -1) {
+              newArr.push(famGroup[i][j].qualifier);
+            }
           }
         }
         obj.cols = newArr;
         familyGroup.push(obj);
       }
       this.familyGroup = familyGroup;
-
-      console.log(this.familyGroup);
-      console.log(this.colArr);
-      console.log(this.tableList);
 
       // 处理tableList
 
@@ -121,17 +158,14 @@ export default {
       });
 
       this.rows = rows;
-      console.log(rows);
 
       this.$nextTick(() => {
         for (var i = 0; i < rows.length; i++) {
-          // console.log(this.$refs.tbodyRef.children[i]);
-
-          rows[i].forEach(cell => {
-            var site = this.locate(cell.family, cell.qualifier)
-            this.$refs.tbodyRef.children[i].children[site].innerHTML = cell.value
-          })
-
+          rows[i].forEach((cell) => {
+            var site = this.locate(cell.family, cell.qualifier);
+            this.$refs.tbodyRef.children[i].children[site].innerHTML =
+              cell.value;
+          });
         }
       });
     },
@@ -153,9 +187,22 @@ export default {
       }
     },
   },
-
 };
 </script>
 
 <style src="../../node_modules/bootstrap/dist/css/bootstrap.css" scoped>
+</style>
+
+<style scoped>
+.empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: rgb(239,241,245);
+  font-weight: 400;
+  color: grey;
+  font-size: 20px;
+  line-height: 0;
+}
 </style>

@@ -37,7 +37,8 @@ axios.interceptors.request.use(
     });
 
 
-// axios.defaults.baseURL = 'http://192.168.10.118:8081'
+// axios.defaults.baseURL = 'http://192.168.3.184:8081'
+axios.defaults.baseURL = 'http://192.168.10.118:8081'
 Vue.prototype.axios = axios
 Vue.prototype.gets = gets
 Vue.prototype.posts = posts
